@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 const NOTEBOOK_HEADER = /^#\s*Databricks notebook source\s*$/i;
 const CELL_DELIMITER = /^#\s*COMMAND\s*-{5,}\s*$/m;
 const MAGIC_PREFIX = /^\s*#\s*MAGIC\s?/i;
+// (\s|$) instead of $ allows inline content: `# MAGIC %md ## Heading`
 const MAGIC_MD = /^%md(\s|$)/i;
 const STRIP_MD = /^%md ?/i;
 
@@ -85,6 +86,6 @@ export class DatabricksSerializer implements vscode.NotebookSerializer {
   }
 
   serializeNotebook(_data: vscode.NotebookData): Uint8Array {
-    throw new Error('not implemented');
+    throw new Error('DatabricksSerializer: serialization is not supported');
   }
 }
