@@ -71,6 +71,14 @@ describe('parseCell', () => {
     expect(cell.kind).toBe(2);
     expect(cell.value).toBe('      required data');
   });
+
+  it('test 10: %md and content on same line — content preserved', () => {
+    const src = '# MAGIC %md ## Heading';
+    const cell = parseCell(src);
+    expect(cell.kind).toBe(2);
+    expect(cell.languageId).toBe('markdown');
+    expect(cell.value).toBe('## Heading');
+  });
 });
 
 describe('DatabricksSerializer.deserializeNotebook', () => {
