@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { DatabricksSerializer } from './serializer';
+import { registerKernelControllers } from './kernelProvider';
 
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
@@ -8,4 +9,5 @@ export function activate(context: vscode.ExtensionContext): void {
       new DatabricksSerializer()
     )
   );
+  registerKernelControllers(context);
 }

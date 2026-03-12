@@ -11,6 +11,9 @@
   "engines": {
     "vscode": "^1.65.0"
   },
+  "extensionDependencies": [
+    "ms-toolsai.jupyter"
+  ],
   "main": "./out/extension.js",
   "activationEvents": [],
   "scripts": {
