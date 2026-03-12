@@ -12,7 +12,7 @@
     "vscode": "^1.65.0"
   },
   "extensionDependencies": [
-    "ms-toolsai.jupyter"
+    "ms-python.python"
   ],
   "main": "./out/extension.js",
   "activationEvents": [],
@@ -34,6 +34,7 @@
     ]
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "@types/vscode": "^1.65.0",
     "@vscode/vsce": "^2.0.0",
     "typescript": "^5.0.0",
