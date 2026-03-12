@@ -33,8 +33,11 @@ function encode(s: string): Uint8Array {
 }
 
 describe('parseCell', () => {
-  it('placeholder', () => {
-    expect(true).toBe(true);
+  it('returns a code cell unchanged (trimmed)', () => {
+    const cell = parseCell('import pyspark\n\ndf = spark.read.csv("data.csv")\n');
+    expect(cell.kind).toBe(1); // NotebookCellKind.Code
+    expect(cell.languageId).toBe('python');
+    expect(cell.value).toBe('import pyspark\n\ndf = spark.read.csv("data.csv")');
   });
 });
 
