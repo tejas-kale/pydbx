@@ -105,4 +105,13 @@ describe('DatabricksSerializer.deserializeNotebook', () => {
     expect(nb.cells[0].value).toBe('import os');
     expect(nb.cells[0].kind).toBe(1); // Code
   });
+
+  it('test 9: empty segments after splitting are filtered out', () => {
+    // Double delimiter produces an empty segment between them
+    const src = 'import os\n# COMMAND ----------\n# COMMAND ----------\nimport sys';
+    const nb = new DatabricksSerializer().deserializeNotebook(encode(src), {} as any);
+    expect(nb.cells).toHaveLength(2);
+    expect(nb.cells[0].value).toBe('import os');
+    expect(nb.cells[1].value).toBe('import sys');
+  });
 });
