@@ -14,14 +14,50 @@ export function parseCell(src: string): vscode.NotebookCellData {
     MAGIC_PREFIX.test(firstNonEmpty) &&
     MAGIC_MD.test(firstNonEmpty.replace(MAGIC_PREFIX, '').trim());
 
-  if (isMarkdown) {
-    throw new Error('markdown not implemented yet');
+  if (!isMarkdown) {
+    return new vscode.NotebookCellData(
+      vscode.NotebookCellKind.Code,
+      src.trim(),
+      'python'
+    );
   }
 
+  // Process the %md directive line: strip prefix, then strip leading "%md "
+  const STRIP_MD = /^%md ?/i;
+  const contentLines: string[] = [];
+
+  let directiveProcessed = false;
+  for (const line of lines) {
+    if (!directiveProcessed && line.trim() !== '' && MAGIC_PREFIX.test(line) &&
+        MAGIC_MD.test(line.replace(MAGIC_PREFIX, '').trim())) {
+      // This is the %md directive line
+      directiveProcessed = true;
+      const afterPrefix = line.replace(MAGIC_PREFIX, '').trim();
+      const afterMd = afterPrefix.replace(STRIP_MD, '');
+      if (afterMd !== '') {
+        contentLines.push(afterMd);
+      }
+      continue;
+    }
+
+    if (!directiveProcessed) {
+      // Skip empty lines before the directive
+      continue;
+    }
+
+    // All lines after the directive: strip MAGIC_PREFIX if present, else pass through
+    if (MAGIC_PREFIX.test(line)) {
+      contentLines.push(line.replace(MAGIC_PREFIX, ''));
+    } else {
+      contentLines.push(line);
+    }
+  }
+
+  const joined = contentLines.join('\n').replace(/^\n+|\n+$/g, '');
   return new vscode.NotebookCellData(
-    vscode.NotebookCellKind.Code,
-    src.trim(),
-    'python'
+    vscode.NotebookCellKind.Markup,
+    joined,
+    'markdown'
   );
 }
 

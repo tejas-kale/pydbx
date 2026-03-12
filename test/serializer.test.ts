@@ -39,6 +39,30 @@ describe('parseCell', () => {
     expect(cell.languageId).toBe('python');
     expect(cell.value).toBe('import pyspark\n\ndf = spark.read.csv("data.csv")');
   });
+
+  it('test 1: standard # MAGIC %md cell', () => {
+    const src = '# MAGIC %md\n# MAGIC ## Heading\n# MAGIC Some text';
+    const cell = parseCell(src);
+    expect(cell.kind).toBe(2); // NotebookCellKind.Markup
+    expect(cell.languageId).toBe('markdown');
+    expect(cell.value).toBe('## Heading\nSome text');
+  });
+
+  it('test 2: #MAGIC %md (no space after #) is recognised as markdown', () => {
+    const src = '#MAGIC %md\n#MAGIC content';
+    const cell = parseCell(src);
+    expect(cell.kind).toBe(2);
+    expect(cell.languageId).toBe('markdown');
+    expect(cell.value).toBe('content');
+  });
+
+  it('test 3: #MAGIC       %md (many spaces) is recognised as markdown', () => {
+    const src = '#MAGIC       %md\n#MAGIC line';
+    const cell = parseCell(src);
+    expect(cell.kind).toBe(2);
+    expect(cell.languageId).toBe('markdown');
+    expect(cell.value).toBe('line');
+  });
 });
 
 describe('DatabricksSerializer.deserializeNotebook', () => {
