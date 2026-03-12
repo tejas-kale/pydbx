@@ -28,8 +28,18 @@ interface PythonExtensionApi {
 
 // Python script run as a subprocess. Maintains shared globals across cells
 // so that variables defined in one cell are visible in later cells.
-const RUNNER_SCRIPT = `import sys, traceback
+// IPython startup scripts (~/.ipython/profile_default/startup/*.py) are
+// executed first so user-defined startup variables/imports are available.
+const RUNNER_SCRIPT = `import sys, traceback, os, glob
 _globals = {}
+_startup = os.path.expanduser('~/.ipython/profile_default/startup')
+if os.path.isdir(_startup):
+    for _f in sorted(glob.glob(os.path.join(_startup, '*.py'))):
+        try:
+            with open(_f) as _fh:
+                exec(compile(_fh.read(), _f, 'exec'), _globals)
+        except Exception:
+            traceback.print_exc()
 while True:
     buf = []
     while True:
