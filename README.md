@@ -1,16 +1,16 @@
 # pydbx — Databricks Local Notebooks
 
-A VS Code extension that lets you open Databricks-format `.py` notebook files as notebooks directly in VS Code, without needing a live Databricks connection.
+A VS Code extension that lets you open and edit Databricks-format `.py` notebook files as notebooks directly in VS Code, without needing a live Databricks connection.
 
 ## What it does
 
-Databricks notebooks exported as `.py` files use a special comment-based format to encode cells and markdown. This extension deserializes that format so VS Code can display the file as a proper notebook with separate code and markdown cells.
+Databricks notebooks exported as `.py` files use a special comment-based format to encode cells and markdown. This extension reads and writes that format so VS Code can display the file as a proper notebook with separate code and markdown cells — and save changes back to `.py`.
 
 ## Installation
 
 ### From a release artifact
 
-1. Download `pydbx-*.vsix` from the [Actions tab](../../actions) (latest `main` build → Artifacts → `pydbx-vsix`)
+1. Download `pydbx-*.vsix` from the [Actions tab](https://github.com/tejas-kale/pydbx/actions) (latest `main` build → Artifacts → `pydbx-vsix`)
 2. Install it:
    ```bash
    code --install-extension pydbx-0.0.1.vsix
@@ -64,5 +64,4 @@ npm run compile   # compile TypeScript → out/
 
 ## Limitations
 
-- **Read-only**: serialization (saving a notebook back to `.py`) is not implemented.
 - Opening a `.py` file normally in VS Code is unaffected — this serializer is only invoked via **Open With**.

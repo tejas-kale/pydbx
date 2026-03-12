@@ -4,6 +4,10 @@
   "description": "Open Databricks-format .py files as notebooks in VS Code",
   "version": "0.0.1",
   "publisher": "your-publisher",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tejas-kale/pydbx"
+  },
   "engines": {
     "vscode": "^1.65.0"
   },
