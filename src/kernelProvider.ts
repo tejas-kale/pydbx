@@ -222,6 +222,14 @@ export async function registerKernelControllers(
     ctrl.supportedLanguages = ['python'];
     ctrl.executeHandler = (cells, notebook) =>
       executeHandler(cells, notebook, ctrl, env);
+    ctrl.interruptHandler = (notebook) => {
+      const key = `${notebook.uri.toString()}::${env.id}`;
+      const session = sessions.get(key);
+      if (session) {
+        session.dispose();
+        sessions.delete(key);
+      }
+    };
     controllers.set(env.id, ctrl);
     context.subscriptions.push(ctrl);
   }
