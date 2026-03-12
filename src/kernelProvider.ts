@@ -139,7 +139,13 @@ export async function registerKernelControllers(
     if (!pythonPath) return undefined;
     const key = `${notebookUri.toString()}::${env.id}`;
     if (!sessions.has(key)) {
-      const proc = spawn(pythonPath, ['-u', runnerScriptPath()]);
+      // Use a login shell so the subprocess inherits the user's full PATH and
+      // environment variables (e.g. DATABRICKS_HOST, credential helpers).
+      // Without -l, VS Code's process may have a stripped PATH that omits
+      // tools like databricks-cli that databricks-connect relies on.
+      const shell = process.env.SHELL ?? '/bin/bash';
+      const cmd = `${JSON.stringify(pythonPath)} -u ${JSON.stringify(runnerScriptPath())}`;
+      const proc = spawn(shell, ['-l', '-c', cmd]);
       sessions.set(key, new PythonSession(proc));
     }
     return sessions.get(key)!;
