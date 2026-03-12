@@ -97,4 +97,12 @@ describe('DatabricksSerializer.deserializeNotebook', () => {
     expect(nb.cells[0].value).toBe('import os');
     expect(nb.cells[1].value).toBe('import sys');
   });
+
+  it('test 8: strips # Databricks notebook source header', () => {
+    const src = '# Databricks notebook source\n# COMMAND ----------\nimport os';
+    const nb = new DatabricksSerializer().deserializeNotebook(encode(src), {} as any);
+    expect(nb.cells).toHaveLength(1);
+    expect(nb.cells[0].value).toBe('import os');
+    expect(nb.cells[0].kind).toBe(1); // Code
+  });
 });
