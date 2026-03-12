@@ -66,7 +66,22 @@ export class DatabricksSerializer implements vscode.NotebookSerializer {
     content: Uint8Array,
     _token: vscode.CancellationToken
   ): vscode.NotebookData {
-    throw new Error('not implemented');
+    const decoder = new TextDecoder('utf-8');
+    let text = decoder.decode(content);
+
+    // Strip header from first line only
+    const firstNewline = text.indexOf('\n');
+    const firstLine = firstNewline === -1 ? text : text.slice(0, firstNewline);
+    if (NOTEBOOK_HEADER.test(firstLine)) {
+      text = firstNewline === -1 ? '' : text.slice(firstNewline + 1);
+    }
+
+    const segments = text.split(CELL_DELIMITER);
+    const cells = segments
+      .filter(seg => seg.trim() !== '')
+      .map(seg => parseCell(seg));
+
+    return new vscode.NotebookData(cells);
   }
 
   serializeNotebook(_data: vscode.NotebookData): Uint8Array {
