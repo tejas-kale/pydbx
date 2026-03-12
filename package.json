@@ -1,0 +1,34 @@
+{
+  "name": "pydbx",
+  "displayName": "Databricks Local Notebooks",
+  "description": "Open Databricks-format .py files as notebooks in VS Code",
+  "version": "0.0.1",
+  "publisher": "your-publisher",
+  "engines": {
+    "vscode": "^1.65.0"
+  },
+  "main": "./out/extension.js",
+  "scripts": {
+    "compile": "tsc -p ./",
+    "test": "vitest run"
+  },
+  "contributes": {
+    "notebooks": [
+      {
+        "type": "databricks-notebook-local",
+        "displayName": "Databricks Local Notebooks",
+        "selector": [
+          {
+            "filenamePattern": "*.py"
+          }
+        ]
+      }
+    ]
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.65.0",
+    "@vscode/vsce": "^2.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}
