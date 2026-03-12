@@ -85,7 +85,24 @@ export class DatabricksSerializer implements vscode.NotebookSerializer {
     return new vscode.NotebookData(cells);
   }
 
-  serializeNotebook(_data: vscode.NotebookData): Uint8Array {
-    throw new Error('DatabricksSerializer: serialization is not supported');
+  serializeNotebook(data: vscode.NotebookData): Uint8Array {
+    const lines: string[] = ['# Databricks notebook source', ''];
+
+    for (const cell of data.cells) {
+      lines.push('# COMMAND ----------', '');
+
+      if (cell.kind === vscode.NotebookCellKind.Markup) {
+        lines.push('# MAGIC %md');
+        for (const line of cell.value.split('\n')) {
+          lines.push('# MAGIC ' + line);
+        }
+      } else {
+        lines.push(...cell.value.split('\n'));
+      }
+
+      lines.push('');
+    }
+
+    return new TextEncoder().encode(lines.join('\n'));
   }
 }

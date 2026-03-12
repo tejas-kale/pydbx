@@ -8,6 +8,7 @@
     "vscode": "^1.65.0"
   },
   "main": "./out/extension.js",
+  "activationEvents": [],
   "scripts": {
     "compile": "tsc -p ./",
     "test": "vitest run"

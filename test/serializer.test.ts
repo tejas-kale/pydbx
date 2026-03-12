@@ -81,6 +81,36 @@ describe('parseCell', () => {
   });
 });
 
+describe('DatabricksSerializer.serializeNotebook', () => {
+  const s = new DatabricksSerializer();
+  const decode = (b: Uint8Array) => new TextDecoder().decode(b);
+
+  it('serializes a code cell with header and delimiter', () => {
+    const nb = { cells: [{ kind: 1, value: 'import os', languageId: 'python' }] } as any;
+    expect(decode(s.serializeNotebook(nb))).toBe(
+      '# Databricks notebook source\n\n# COMMAND ----------\n\nimport os\n'
+    );
+  });
+
+  it('serializes a markdown cell with # MAGIC prefix lines', () => {
+    const nb = { cells: [{ kind: 2, value: '## Heading\nSome text', languageId: 'markdown' }] } as any;
+    expect(decode(s.serializeNotebook(nb))).toBe(
+      '# Databricks notebook source\n\n# COMMAND ----------\n\n# MAGIC %md\n# MAGIC ## Heading\n# MAGIC Some text\n'
+    );
+  });
+
+  it('round-trips: deserialize → serialize → deserialize gives same cells', () => {
+    const src = '# Databricks notebook source\n\n# COMMAND ----------\n\nimport os\n\n# COMMAND ----------\n\n# MAGIC %md\n# MAGIC ## Heading\n';
+    const nb = s.deserializeNotebook(encode(src), {} as any);
+    const roundTripped = s.deserializeNotebook(s.serializeNotebook(nb), {} as any);
+    expect(roundTripped.cells).toHaveLength(2);
+    expect(roundTripped.cells[0].value).toBe('import os');
+    expect(roundTripped.cells[0].kind).toBe(1);
+    expect(roundTripped.cells[1].value).toBe('## Heading');
+    expect(roundTripped.cells[1].kind).toBe(2);
+  });
+});
+
 describe('DatabricksSerializer.deserializeNotebook', () => {
   it('test 6: splits on delimiter with exactly 5 dashes', () => {
     const src = 'import os\n# COMMAND -----\nimport sys';
