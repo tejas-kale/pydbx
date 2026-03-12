@@ -63,6 +63,14 @@ describe('parseCell', () => {
     expect(cell.languageId).toBe('markdown');
     expect(cell.value).toBe('line');
   });
+
+  it('test 4: content whitespace after prefix is preserved', () => {
+    // 7 spaces between MAGIC and "required"; regex consumes 1, 6 remain
+    const src = '#MAGIC %md\n#MAGIC       required data';
+    const cell = parseCell(src);
+    expect(cell.kind).toBe(2);
+    expect(cell.value).toBe('      required data');
+  });
 });
 
 describe('DatabricksSerializer.deserializeNotebook', () => {
