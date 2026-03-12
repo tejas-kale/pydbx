@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 
 // Must be declared before any import that transitively imports 'vscode'.
 // vi.mock() calls are hoisted to the top of the file by Vitest.

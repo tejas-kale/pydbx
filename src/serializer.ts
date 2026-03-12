@@ -4,6 +4,7 @@ const NOTEBOOK_HEADER = /^#\s*Databricks notebook source\s*$/i;
 const CELL_DELIMITER = /^#\s*COMMAND\s*-{5,}\s*$/m;
 const MAGIC_PREFIX = /^\s*#\s*MAGIC\s?/i;
 const MAGIC_MD = /^%md(\s|$)/i;
+const STRIP_MD = /^%md ?/i;
 
 export function parseCell(src: string): vscode.NotebookCellData {
   const lines = src.split('\n');
@@ -23,7 +24,6 @@ export function parseCell(src: string): vscode.NotebookCellData {
   }
 
   // Process the %md directive line: strip prefix, then strip leading "%md "
-  const STRIP_MD = /^%md ?/i;
   const contentLines: string[] = [];
 
   let directiveProcessed = false;
