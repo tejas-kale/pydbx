@@ -82,7 +82,19 @@ describe('parseCell', () => {
 });
 
 describe('DatabricksSerializer.deserializeNotebook', () => {
-  it('placeholder', () => {
-    expect(true).toBe(true);
+  it('test 6: splits on delimiter with exactly 5 dashes', () => {
+    const src = 'import os\n# COMMAND -----\nimport sys';
+    const nb = new DatabricksSerializer().deserializeNotebook(encode(src), {} as any);
+    expect(nb.cells).toHaveLength(2);
+    expect(nb.cells[0].value).toBe('import os');
+    expect(nb.cells[1].value).toBe('import sys');
+  });
+
+  it('test 7: splits on delimiter with 10 dashes', () => {
+    const src = 'import os\n# COMMAND ----------\nimport sys';
+    const nb = new DatabricksSerializer().deserializeNotebook(encode(src), {} as any);
+    expect(nb.cells).toHaveLength(2);
+    expect(nb.cells[0].value).toBe('import os');
+    expect(nb.cells[1].value).toBe('import sys');
   });
 });
