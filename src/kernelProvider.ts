@@ -142,6 +142,31 @@ class PythonSession {
   }
 }
 
+// Rewrites IPython-style inspect cells before execution.
+// `expr?`  → help(expr)
+// `expr??` → inspect.getsource(expr), falling back to help() for built-ins
+function rewriteInspectCell(code: string): string {
+  const trimmed = code.trim();
+  if (trimmed.endsWith('??')) {
+    const expr = trimmed.slice(0, -2).trim();
+    if (expr) {
+      return (
+        `import inspect as _inspect\n` +
+        `try:\n` +
+        `    print(_inspect.getsource(${expr}))\n` +
+        `except (OSError, TypeError):\n` +
+        `    help(${expr})`
+      );
+    }
+  } else if (trimmed.endsWith('?')) {
+    const expr = trimmed.slice(0, -1).trim();
+    if (expr) {
+      return `help(${expr})`;
+    }
+  }
+  return code;
+}
+
 function envLabel(env: PythonEnv): string {
   const ver = env.version
     ? `Python ${env.version.major}.${env.version.minor}`
@@ -209,7 +234,7 @@ export async function registerKernelControllers(
       }
 
       try {
-        const { stdout, stderr } = await session.execute(cell.document.getText());
+        const { stdout, stderr } = await session.execute(rewriteInspectCell(cell.document.getText()));
         const outputs: vscode.NotebookCellOutput[] = [];
         if (stdout) {
           outputs.push(new vscode.NotebookCellOutput([
