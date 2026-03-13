@@ -275,8 +275,14 @@ export async function registerKernelControllers(
   }
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('pydbx.restartKernel', killSessionsForActiveNotebook),
-    vscode.commands.registerCommand('pydbx.interruptKernel', killSessionsForActiveNotebook)
+    vscode.commands.registerCommand('pydbx.restartKernel', () => {
+      killSessionsForActiveNotebook();
+      vscode.window.showInformationMessage('Kernel restarted.');
+    }),
+    vscode.commands.registerCommand('pydbx.interruptKernel', () => {
+      killSessionsForActiveNotebook();
+      vscode.window.showInformationMessage('Kernel interrupted.');
+    })
   );
 
   context.subscriptions.push(
