@@ -91,6 +91,11 @@ class PythonSession {
     resolve: (r: { stdout: string; stderr: string }) => void;
     reject: (e: Error) => void;
   };
+  private alive = true;
+
+  get isAlive(): boolean {
+    return this.alive;
+  }
 
   constructor(private readonly proc: ChildProcess) {
     proc.stdout!.on('data', (chunk: Buffer) => {
@@ -101,6 +106,7 @@ class PythonSession {
       this.stderrBuf += chunk.toString();
     });
     proc.on('exit', () => {
+      this.alive = false;
       this.pending?.reject(new Error('Python kernel exited unexpectedly'));
       this.pending = undefined;
     });
@@ -232,6 +238,7 @@ export async function registerKernelControllers(
     // Refresh variables after all cells complete (only when feature is enabled)
     if (
       session &&
+      session.isAlive &&
       vscode.workspace.getConfiguration('pydbx').get<boolean>('enableVariablesView')
     ) {
       try {
@@ -260,7 +267,9 @@ export async function registerKernelControllers(
         session.dispose();
         sessions.delete(key);
       }
-      onVariablesUpdate([]);
+      if (vscode.workspace.getConfiguration('pydbx').get<boolean>('enableVariablesView')) {
+        onVariablesUpdate([]);
+      }
     };
     controllers.set(env.id, ctrl);
     context.subscriptions.push(ctrl);
@@ -309,12 +318,16 @@ export async function registerKernelControllers(
   context.subscriptions.push(
     vscode.commands.registerCommand('pydbx.restartKernel', () => {
       killSessionsForActiveNotebook();
-      onVariablesUpdate([]);
+      if (vscode.workspace.getConfiguration('pydbx').get<boolean>('enableVariablesView')) {
+        onVariablesUpdate([]);
+      }
       vscode.window.showInformationMessage('Kernel restarted.');
     }),
     vscode.commands.registerCommand('pydbx.interruptKernel', () => {
       killSessionsForActiveNotebook();
-      onVariablesUpdate([]);
+      if (vscode.workspace.getConfiguration('pydbx').get<boolean>('enableVariablesView')) {
+        onVariablesUpdate([]);
+      }
       vscode.window.showInformationMessage('Kernel interrupted.');
     })
   );
