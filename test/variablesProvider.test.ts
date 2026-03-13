@@ -1,4 +1,29 @@
-import { describe, it, expect } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
+
+// Must be declared before any import that transitively imports 'vscode'.
+// vi.mock() calls are hoisted to the top of the file by Vitest.
+vi.mock('vscode', () => {
+  class TreeItem {
+    label: string;
+    collapsibleState: number;
+    description?: string;
+    tooltip?: string;
+    constructor(label: string, collapsibleState: number) {
+      this.label = label;
+      this.collapsibleState = collapsibleState;
+    }
+  }
+  class EventEmitter {
+    event = undefined;
+    fire() {}
+  }
+  return {
+    TreeItemCollapsibleState: { None: 0 },
+    TreeItem,
+    EventEmitter,
+  };
+});
+
 import { parseProbeOutput } from '../src/variablesProvider';
 
 describe('parseProbeOutput', () => {
