@@ -262,6 +262,23 @@ export async function registerKernelControllers(
     })
   );
 
+  function killSessionsForActiveNotebook(): void {
+    const notebook = vscode.window.activeNotebookEditor?.notebook;
+    if (!notebook) return;
+    const prefix = `${notebook.uri.toString()}::`;
+    for (const [key, session] of sessions) {
+      if (key.startsWith(prefix)) {
+        session.dispose();
+        sessions.delete(key);
+      }
+    }
+  }
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('pydbx.restartKernel', killSessionsForActiveNotebook),
+    vscode.commands.registerCommand('pydbx.interruptKernel', killSessionsForActiveNotebook)
+  );
+
   context.subscriptions.push(
     vscode.workspace.onDidCloseNotebookDocument(notebook => {
       const prefix = `${notebook.uri.toString()}::`;

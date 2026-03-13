@@ -21,6 +21,34 @@
     "test": "vitest run"
   },
   "contributes": {
+    "commands": [
+      {
+        "command": "pydbx.restartKernel",
+        "title": "Restart Kernel",
+        "icon": "$(debug-restart)",
+        "category": "Notebook"
+      },
+      {
+        "command": "pydbx.interruptKernel",
+        "title": "Interrupt Kernel",
+        "icon": "$(debug-stop)",
+        "category": "Notebook"
+      }
+    ],
+    "menus": {
+      "notebook/toolbar": [
+        {
+          "command": "pydbx.restartKernel",
+          "group": "navigation",
+          "when": "notebookType == 'databricks-notebook-local'"
+        },
+        {
+          "command": "pydbx.interruptKernel",
+          "group": "navigation",
+          "when": "notebookType == 'databricks-notebook-local'"
+        }
+      ]
+    },
     "notebooks": [
       {
         "type": "databricks-notebook-local",
