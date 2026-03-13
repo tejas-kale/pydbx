@@ -3,10 +3,22 @@ import { spawn, ChildProcess } from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { VariableInfo, VARS_SENTINEL, parseProbeOutput } from './variablesProvider';
 
 const NOTEBOOK_TYPE = 'databricks-notebook-local';
 const CODE_END = '__PYDBX_CODE_END__';
 const DONE = '__PYDBX_DONE__';
+
+const PROBE_SCRIPT = `import json as _json
+_result = []
+for _k, _v in list(_globals.items()):
+    if not _k.startswith('_'):
+        try:
+            _result.append({'name': _k, 'type': type(_v).__name__, 'value': repr(_v)[:200]})
+        except Exception:
+            _result.append({'name': _k, 'type': '?', 'value': '?'})
+print('${VARS_SENTINEL}' + _json.dumps(_result), flush=True)
+`;
 
 // Minimal type shims for ms-python.python exported API
 interface PythonEnv {
@@ -116,6 +128,11 @@ class PythonSession {
 
   dispose(): void {
     this.proc.kill();
+  }
+
+  async probe(): Promise<VariableInfo[]> {
+    const { stdout } = await this.execute(PROBE_SCRIPT);
+    return parseProbeOutput(stdout);
   }
 }
 
