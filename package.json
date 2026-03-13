@@ -59,7 +59,26 @@
           }
         ]
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Databricks Local Notebooks",
+      "properties": {
+        "pydbx.enableVariablesView": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show a Kernel Variables panel in the Explorer sidebar, populated after each cell execution."
+        }
+      }
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "pydbx.variables",
+          "name": "Kernel Variables",
+          "when": "config.pydbx.enableVariablesView"
+        }
+      ]
+    }
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
