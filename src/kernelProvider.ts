@@ -145,7 +145,8 @@ function envLabel(env: PythonEnv): string {
 }
 
 export async function registerKernelControllers(
-  context: vscode.ExtensionContext
+  context: vscode.ExtensionContext,
+  onVariablesUpdate: (vars: VariableInfo[]) => void
 ): Promise<void> {
   const pythonExt = vscode.extensions.getExtension<PythonExtensionApi>('ms-python.python');
   if (!pythonExt) return;
@@ -227,6 +228,19 @@ export async function registerKernelControllers(
         exec.end(false, Date.now());
       }
     }
+
+    // Refresh variables after all cells complete (only when feature is enabled)
+    if (
+      session &&
+      vscode.workspace.getConfiguration('pydbx').get<boolean>('enableVariablesView')
+    ) {
+      try {
+        const vars = await session.probe();
+        onVariablesUpdate(vars);
+      } catch {
+        // session died mid-execution (e.g. SystemExit); leave variable display unchanged
+      }
+    }
   }
 
   function addController(env: PythonEnv): void {
@@ -246,6 +260,7 @@ export async function registerKernelControllers(
         session.dispose();
         sessions.delete(key);
       }
+      onVariablesUpdate([]);
     };
     controllers.set(env.id, ctrl);
     context.subscriptions.push(ctrl);
@@ -294,10 +309,12 @@ export async function registerKernelControllers(
   context.subscriptions.push(
     vscode.commands.registerCommand('pydbx.restartKernel', () => {
       killSessionsForActiveNotebook();
+      onVariablesUpdate([]);
       vscode.window.showInformationMessage('Kernel restarted.');
     }),
     vscode.commands.registerCommand('pydbx.interruptKernel', () => {
       killSessionsForActiveNotebook();
+      onVariablesUpdate([]);
       vscode.window.showInformationMessage('Kernel interrupted.');
     })
   );
